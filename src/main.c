@@ -67,7 +67,7 @@ int main(int argc, char **argv)
         error_and_exit(msg);
     }
 
-    item->cmd(0, 0, 0);
+    item->cmd(&todoItems, &doneItems, 0, 0);
 
     return 0;
 }

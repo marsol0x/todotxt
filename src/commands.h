@@ -1,8 +1,8 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
-typedef void Command(TodoItem *root, int argc, char **argv);
-#define COMMAND(name) void cmd_##name(TodoItem *root, int argc, char **argv)
+typedef void Command(TodoItem *todoItems, TodoItem *doneItems, int argc, char **argv);
+#define COMMAND(name) void cmd_##name(TodoItem *todoItems, TodoItem *doneItems, int argc, char **argv)
 
 COMMAND(add)
 {
@@ -16,7 +16,9 @@ COMMAND(delete)
 
 COMMAND(list)
 {
-    printf("List command\n");
+    // NOTE: The first item is the sentinel
+    TodoItem *ti = todoItems->next;
+    todoitem_print_items(ti);
 }
 
 COMMAND(done)

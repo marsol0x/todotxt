@@ -67,6 +67,7 @@ void todoitem_get_items(FILE *file, TodoItem *list)
         *pos = 0;
 
         TodoItem *ti = (TodoItem *) malloc(sizeof(TodoItem));
+        memset(ti, 0, sizeof(TodoItem));
         todoitem_set_datetime(ti, datestr);
         ti->priority = (int) (priority[0] - 'A');
         strncpy(ti->item, item, MAX_ITEM_LEN - 1);

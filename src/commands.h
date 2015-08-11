@@ -36,7 +36,7 @@ COMMAND(depriority)
 
 COMMAND(num)
 {
-    printf("Num command\n");
+    printf("%d\n", todoItems->count);
 }
 
 #endif

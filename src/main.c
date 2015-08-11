@@ -17,8 +17,8 @@ void error_and_exit(char *msg)
 #include "commands.h"
 #include "hashtable.h"
 
-TodoItem todoItems;
-TodoItem doneItems;
+TodoList todoItems;
+TodoList doneItems;
 
 HashItem *hashTable[HASHTABLE_MAX_SIZE];
  

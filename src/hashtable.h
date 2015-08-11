@@ -48,6 +48,7 @@ void hashtable_add(HashItem **table, int len, char *key, Command *cmd)
             item = item->next;
         }
         item->next = hi;
+        hi->prev = item;
     }
 }
 

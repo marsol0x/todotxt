@@ -1,8 +1,8 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
-typedef void Command(TodoList *todoItems, TodoList *doneItems, int argc, char **argv);
-#define COMMAND(name) void cmd_##name(TodoList *todoItems, TodoList *doneItems, int argc, char **argv)
+typedef void Command(TodoList *todoItems, TodoList *doneItems, FILE *todoFile, int argc, char **argv);
+#define COMMAND(name) void cmd_##name(TodoList *todoItems, TodoList *doneItems, FILE *todoFile, int argc, char **argv)
 
 COMMAND(add)
 {

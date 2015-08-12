@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <unistd.h>
+#include <pwd.h>
+
 #define MAX_LINE_LEN 1056
 #define MAX_ITEM_LEN 1024
 
@@ -24,11 +27,28 @@ HashItem *hashTable[HASHTABLE_MAX_SIZE];
  
 int main(int argc, char **argv)
 {
-    FILE *todoFile = fopen("/Users/marshel/todo.txt", "r");
+    FILE *todoFile;
+    char *todoFileTxt = "/todo.txt";
+    char todoFilePath[256] = {};
+
+    // NOTE: First we'll check the current working directory
+    strcat(todoFilePath, getcwd(0, 0));
+    strcat(todoFilePath, todoFileTxt);
+    todoFile = fopen(todoFilePath, "r");
     if (todoFile == NULL)
     {
-        perror("fopen");
-        exit(1);
+        // NOTE: Next, try the user's home directory
+        uid_t currentUid = getuid();
+        struct passwd *userPasswd = getpwuid(currentUid);
+        memset(todoFilePath, 0, 256);
+        strcat(todoFilePath, userPasswd->pw_dir);
+        strcat(todoFilePath, todoFileTxt);
+
+        todoFile = fopen(todoFilePath, "r");
+        if (todoFile == NULL)
+        {
+            error_and_exit("Could not find todo.txt");
+        }
     }
 
     todoitem_get_items(todoFile, &todoItems);
@@ -67,7 +87,7 @@ int main(int argc, char **argv)
         error_and_exit(msg);
     }
 
-    item->cmd(&todoItems, &doneItems, 0, 0);
+    item->cmd(&todoItems, &doneItems, todoFile, 0, 0);
 
     return 0;
 }

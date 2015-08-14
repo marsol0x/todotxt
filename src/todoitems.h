@@ -15,26 +15,56 @@ typedef struct todoitem
 
 typedef struct
 {
-    TodoItem *root;
+    TodoItem root;
     int count;
 } TodoList;
 
 void todoitem_add(TodoList *list, TodoItem *ti)
 {
-    TodoItem *t = list->root;
-    if (!t)
-    {
-        list->root = ti;
-        list->count++;
-        return;
-    }
-
+    TodoItem *t = &list->root;
     while (t->next != NULL)
     {
         t = t->next;
     }
     t->next = ti;
+    ti->prev = t;
     list->count++;
+}
+
+void todoitem_remove(TodoList *list, int id)
+{
+    if (id >= list->count)
+    {
+        return;
+    }
+
+    TodoItem *ti = list->root.next;
+    for (int i = 0; i < id; ++i)
+    {
+        ti = ti->next;
+    }
+
+    ti->prev->next = ti->next;
+    ti->next->prev = ti->prev;
+
+    ti->next = 0;
+    ti->prev = 0;
+}
+
+TodoItem * todoitem_get_item(TodoList *list, int id)
+{
+    if (id >= list->count)
+    {
+        return NULL;
+    }
+
+    TodoItem *ti = list->root.next;
+    for (int i = 0; i < id; ++i)
+    {
+        ti = ti->next;
+    }
+
+    return ti;
 }
 
 void todoitem_set_datetime(TodoItem *item, char *datestr)
@@ -90,17 +120,20 @@ void todoitem_get_items(FILE *file, TodoList *list)
     }
 }
 
-void todoitem_print_items(TodoList *list)
+void todoitem_write_items(TodoList *list, FILE *out)
 {
     int itemNum = 1;
     char datetimeLine[MAX_LINE_LEN] = {};
-    TodoItem *item = list->root;
+    TodoItem *item = list->root.next;
 
-    printf("%d Todo item%c\n---\n", list->count, list->count > 1 ? 's' : ' ');
     while (item != NULL)
     {
         strftime(datetimeLine, MAX_LINE_LEN, "%Y%m%d%H%M", &item->datetime);
-        printf(" %d %s %c %s\n", itemNum++, datetimeLine, item->priority + 'A', item->item);
+        if (out == stdout)
+        {
+            fprintf(out, " %d ", itemNum++);
+        }
+        fprintf(out, "%s %c %s\n", datetimeLine, item->priority + 'A', item->item);
         item = item->next;
     }
 }

@@ -34,7 +34,7 @@ int main(int argc, char **argv)
     // NOTE: First we'll check the current working directory
     strcat(todoFilePath, getcwd(0, 0));
     strcat(todoFilePath, todoFileTxt);
-    todoFile = fopen(todoFilePath, "r");
+    todoFile = fopen(todoFilePath, "r+");
     if (todoFile == NULL)
     {
         // NOTE: Next, try the user's home directory
@@ -44,13 +44,15 @@ int main(int argc, char **argv)
         strcat(todoFilePath, userPasswd->pw_dir);
         strcat(todoFilePath, todoFileTxt);
 
-        todoFile = fopen(todoFilePath, "r");
+        todoFile = fopen(todoFilePath, "r+");
         if (todoFile == NULL)
         {
             error_and_exit("Could not find todo.txt");
         }
     }
 
+    memset(&todoItems, 0, sizeof(TodoList));
+    memset(&doneItems, 0, sizeof(TodoList));
     todoitem_get_items(todoFile, &todoItems);
     todoitem_get_items(todoFile, &doneItems);
 
@@ -87,7 +89,7 @@ int main(int argc, char **argv)
         error_and_exit(msg);
     }
 
-    item->cmd(&todoItems, &doneItems, todoFile, 0, 0);
+    item->cmd(&todoItems, &doneItems, todoFile, argc - 2, argv + 2);
 
     return 0;
 }

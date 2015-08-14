@@ -11,17 +11,38 @@ COMMAND(add)
 
 COMMAND(delete)
 {
-    printf("Delete command\n");
+    int itemNum = atoi(argv[0]) - 1;
+    TodoItem *ti = todoitem_get_item(todoItems, itemNum);
+    todoitem_remove(todoItems, itemNum);
+
+    printf("Deleted: %s\n", ti->item);
+
+    rewind(todoFile);
+    ftruncate(fileno(todoFile), 0);
+    todoitem_write_items(todoItems, todoFile);
+    fprintf(todoFile, "-\n");
+    todoitem_write_items(doneItems, todoFile);
 }
 
 COMMAND(list)
 {
-    todoitem_print_items(todoItems);
+    printf("%d Todo item%c\n---\n", todoItems->count, todoItems->count > 1 ? 's' : ' ');
+    todoitem_write_items(todoItems, stdout);
 }
 
 COMMAND(done)
 {
-    printf("Done command\n");
+    int itemNum = atoi(argv[0]) - 1;
+    TodoItem *ti = todoitem_get_item(todoItems, itemNum);
+    todoitem_remove(todoItems, itemNum);
+    todoitem_add(doneItems, ti);
+
+    printf("Completed: %s\n", ti->item);
+
+    rewind(todoFile);
+    todoitem_write_items(todoItems, todoFile);
+    fprintf(todoFile, "-\n");
+    todoitem_write_items(doneItems, todoFile);
 }
 
 COMMAND(priority)

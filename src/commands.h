@@ -1,15 +1,15 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
-typedef void Command(TodoList *todoItems, TodoList *doneItems, FILE *todoFile, int argc, char **argv);
-#define COMMAND(name) void cmd_##name(TodoList *todoItems, TodoList *doneItems, FILE *todoFile, int argc, char **argv)
+#define COMMAND(name) void name(TodoList *todoItems, TodoList *doneItems, FILE *todoFile, int argc, char **argv)
+typedef COMMAND(Command);
 
-COMMAND(add)
+COMMAND(cmd_add)
 {
     printf("Add command\n");
 }
 
-COMMAND(delete)
+COMMAND(cmd_delete)
 {
     int itemNum = atoi(argv[0]) - 1;
     TodoItem *ti = todoitem_get_item(todoItems, itemNum);
@@ -24,13 +24,13 @@ COMMAND(delete)
     todoitem_write_items(doneItems, todoFile);
 }
 
-COMMAND(list)
+COMMAND(cmd_list)
 {
     printf("%d Todo item%c\n---\n", todoItems->count, todoItems->count > 1 ? 's' : ' ');
     todoitem_write_items(todoItems, stdout);
 }
 
-COMMAND(done)
+COMMAND(cmd_done)
 {
     int itemNum = atoi(argv[0]) - 1;
     TodoItem *ti = todoitem_get_item(todoItems, itemNum);
@@ -45,17 +45,17 @@ COMMAND(done)
     todoitem_write_items(doneItems, todoFile);
 }
 
-COMMAND(priority)
+COMMAND(cmd_priority)
 {
     printf("Priority command\n");
 }
 
-COMMAND(depriority)
+COMMAND(cmd_depriority)
 {
     printf("Depriority command\n");
 }
 
-COMMAND(num)
+COMMAND(cmd_num)
 {
     printf("%d\n", todoItems->count);
 }

@@ -131,7 +131,9 @@ void todoitem_write_items(TodoList *list, FILE *out)
         strftime(datetimeLine, MAX_LINE_LEN, "%Y%m%d%H%M", &item->datetime);
         if (out == stdout)
         {
-            fprintf(out, " %d ", itemNum++);
+            char countStr[5];
+            sprintf(countStr, "%d", list->count);
+            fprintf(out, " %*d ", (int) strlen(countStr), itemNum++);
         }
         fprintf(out, "%s %c %s\n", datetimeLine, item->priority + 'A', item->item);
         item = item->next;

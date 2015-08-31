@@ -6,7 +6,23 @@ typedef COMMAND(Command);
 
 COMMAND(cmd_add)
 {
-    printf("Add command\n");
+    if (argc > 1)
+    {
+        error_and_exit("Too many parameters. Please use quotes to add new todo items.");
+    } else if (argc == 0) {
+        error_and_exit("Too few parameters.");
+    }
+
+    time_t t = time(0);
+    TodoItem ti;
+    ti.next = ti.prev = 0;
+    ti.priority = 5;
+    localtime_r(&t, &ti.datetime);
+    strncpy(ti.item, argv[0], MAX_ITEM_LEN);
+
+    todoitem_add(todoItems, &ti);
+    printf("Added: %s\n", ti.item);
+    todoitem_write_all(todoItems, doneItems, todoFile);
 }
 
 COMMAND(cmd_delete)
@@ -16,12 +32,7 @@ COMMAND(cmd_delete)
     todoitem_remove(todoItems, itemNum);
 
     printf("Deleted: %s\n", ti->item);
-
-    rewind(todoFile);
-    ftruncate(fileno(todoFile), 0);
-    todoitem_write_items(todoItems, todoFile);
-    fprintf(todoFile, "-\n");
-    todoitem_write_items(doneItems, todoFile);
+    todoitem_write_all(todoItems, doneItems, todoFile);
 }
 
 COMMAND(cmd_list)
@@ -38,21 +49,43 @@ COMMAND(cmd_done)
     todoitem_add(doneItems, ti);
 
     printf("Completed: %s\n", ti->item);
+    todoitem_write_all(todoItems, doneItems, todoFile);
+}
 
-    rewind(todoFile);
-    todoitem_write_items(todoItems, todoFile);
-    fprintf(todoFile, "-\n");
-    todoitem_write_items(doneItems, todoFile);
+#define MAX_PRIORITY 5
+int clamp(int num, int min, int max)
+{
+    if (num > max)
+    {
+        return max;
+    }
+
+    if (num < min)
+    {
+        return min;
+    }
+
+    return num;
 }
 
 COMMAND(cmd_priority)
 {
-    printf("Priority command\n");
+    int itemNum = atoi(argv[0]) - 1;
+    TodoItem *ti = todoitem_get_item(todoItems, itemNum);
+    ti->priority = clamp(ti->priority - 1, 0, MAX_PRIORITY);
+
+    printf("Increased priority of: %s\n", ti->item);
+    todoitem_write_all(todoItems, doneItems, todoFile);
 }
 
 COMMAND(cmd_depriority)
 {
-    printf("Depriority command\n");
+    int itemNum = atoi(argv[0]) - 1;
+    TodoItem *ti = todoitem_get_item(todoItems, itemNum);
+    ti->priority = clamp(ti->priority + 1, 0, MAX_PRIORITY);
+
+    printf("Decreased priority of: %s\n", ti->item);
+    todoitem_write_all(todoItems, doneItems, todoFile);
 }
 
 COMMAND(cmd_num)

@@ -44,8 +44,14 @@ void todoitem_remove(TodoList *list, int id)
         ti = ti->next;
     }
 
-    ti->prev->next = ti->next;
-    ti->next->prev = ti->prev;
+    if (ti->prev)
+    {
+        ti->prev->next = ti->next;
+    }
+    if (ti->next)
+    {
+        ti->next->prev = ti->prev;
+    }
 
     ti->next = 0;
     ti->prev = 0;
@@ -138,6 +144,15 @@ void todoitem_write_items(TodoList *list, FILE *out)
         fprintf(out, "%s %c %s\n", datetimeLine, item->priority + 'A', item->item);
         item = item->next;
     }
+}
+
+void todoitem_write_all(TodoList *todoItems, TodoList *doneItems, FILE *todoFile)
+{
+    rewind(todoFile);
+    ftruncate(fileno(todoFile), 0);
+    todoitem_write_items(todoItems, todoFile);
+    fprintf(todoFile, "-\n");
+    todoitem_write_items(doneItems, todoFile);
 }
 
 #endif

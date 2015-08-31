@@ -72,20 +72,32 @@ COMMAND(cmd_priority)
 {
     int itemNum = atoi(argv[0]) - 1;
     TodoItem *ti = todoitem_get_item(todoItems, itemNum);
-    ti->priority = clamp(ti->priority - 1, 0, MAX_PRIORITY);
+    int newPri = clamp(ti->priority - 1, 0, MAX_PRIORITY);
+    if (newPri != ti->priority)
+    {
+        ti->priority = newPri;
+        todoitem_remove(todoItems, itemNum);
+        todoitem_add(todoItems, ti);
+        todoitem_write_all(todoItems, doneItems, todoFile);
+    }
 
     printf("Increased priority of: %s\n", ti->item);
-    todoitem_write_all(todoItems, doneItems, todoFile);
 }
 
 COMMAND(cmd_depriority)
 {
     int itemNum = atoi(argv[0]) - 1;
     TodoItem *ti = todoitem_get_item(todoItems, itemNum);
-    ti->priority = clamp(ti->priority + 1, 0, MAX_PRIORITY);
+    int newPri = clamp(ti->priority + 1, 0, MAX_PRIORITY);
+    if (newPri != ti->priority)
+    {
+        ti->priority = newPri;
+        todoitem_remove(todoItems, itemNum);
+        todoitem_add(todoItems, ti);
+        todoitem_write_all(todoItems, doneItems, todoFile);
+    }
 
     printf("Decreased priority of: %s\n", ti->item);
-    todoitem_write_all(todoItems, doneItems, todoFile);
 }
 
 COMMAND(cmd_num)

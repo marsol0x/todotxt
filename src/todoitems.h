@@ -19,15 +19,49 @@ typedef struct
     int count;
 } TodoList;
 
+int compare_datetime(struct tm *a, struct tm *b)
+{
+    if (a->tm_year > b->tm_year &&
+        a->tm_mon > b->tm_mon &&
+        a->tm_mday > b->tm_mday &&
+        a->tm_hour > b->tm_hour &&
+        a->tm_min > b->tm_min)
+    {
+        return -1;
+    } else if (a->tm_year < b->tm_year &&
+               a->tm_mon < b->tm_mon &&
+               a->tm_mday < b->tm_mday &&
+               a->tm_hour < b->tm_hour &&
+               a->tm_min < b->tm_min)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
 void todoitem_add(TodoList *list, TodoItem *ti)
 {
     TodoItem *t = &list->root;
     while (t->next != NULL)
     {
+        // Priority of 0 is the highest, going lower as the priority int increases
+        if (ti->priority < t->next->priority || compare_datetime(&ti->datetime, &t->next->datetime) > 0)
+        {
+            break;
+        }
         t = t->next;
     }
-    t->next = ti;
+
+    ti->next = t->next;
     ti->prev = t;
+    t->next = ti;
+
+    if (ti->next)
+    {
+        ti->next->prev = ti;
+    }
+
     list->count++;
 }
 
@@ -55,6 +89,8 @@ void todoitem_remove(TodoList *list, int id)
 
     ti->next = 0;
     ti->prev = 0;
+
+    list->count--;
 }
 
 TodoItem * todoitem_get_item(TodoList *list, int id)

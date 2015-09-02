@@ -13,11 +13,10 @@ COMMAND(cmd_add)
         error_and_exit("Too few parameters.");
     }
 
-    time_t t = time(0);
     TodoItem ti;
     ti.next = ti.prev = 0;
     ti.priority = 5;
-    localtime_r(&t, &ti.datetime);
+    ti.datetime = time(0);
     strncpy(ti.item, argv[0], MAX_ITEM_LEN);
 
     todoitem_add(todoItems, &ti);

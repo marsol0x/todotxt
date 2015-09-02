@@ -8,7 +8,7 @@ typedef struct todoitem
     struct todoitem *next;
     struct todoitem *prev;
 
-    struct tm datetime;
+    time_t datetime;
     int priority;
     char item[MAX_ITEM_LEN];
 } TodoItem;
@@ -19,38 +19,26 @@ typedef struct
     int count;
 } TodoList;
 
-int compare_datetime(struct tm *a, struct tm *b)
-{
-    if (a->tm_year > b->tm_year &&
-        a->tm_mon > b->tm_mon &&
-        a->tm_mday > b->tm_mday &&
-        a->tm_hour > b->tm_hour &&
-        a->tm_min > b->tm_min)
-    {
-        return -1;
-    } else if (a->tm_year < b->tm_year &&
-               a->tm_mon < b->tm_mon &&
-               a->tm_mday < b->tm_mday &&
-               a->tm_hour < b->tm_hour &&
-               a->tm_min < b->tm_min)
-    {
-        return 1;
-    }
-
-    return 0;
-}
-
 void todoitem_add(TodoList *list, TodoItem *ti)
 {
     TodoItem *t = &list->root;
     while (t->next != NULL)
     {
         // Priority of 0 is the highest, going lower as the priority int increases
-        if (ti->priority < t->next->priority || compare_datetime(&ti->datetime, &t->next->datetime) > 0)
+        if (ti->priority < t->next->priority)
         {
             break;
+        } else {
+            t = t->next;
+            continue;
         }
-        t = t->next;
+
+        if (difftime(ti->datetime, t->next->datetime) < 0)
+        {
+            break;
+        } else {
+            t = t->next;
+        }
     }
 
     ti->next = t->next;
@@ -109,22 +97,6 @@ TodoItem * todoitem_get_item(TodoList *list, int id)
     return ti;
 }
 
-void todoitem_set_datetime(TodoItem *item, char *datestr)
-{
-    struct tm todoTime = {};
-
-    int year, month, day, hour, minute;
-    sscanf(datestr, "%4d%2d%2d%2d%2d", &year, &month, &day, &hour, &minute);
-
-    todoTime.tm_year = year - 1900;
-    todoTime.tm_mon = month;
-    todoTime.tm_mday = day;
-    todoTime.tm_hour = hour;
-    todoTime.tm_min = minute;
-
-    item->datetime = todoTime;
-}
-
 void todoitem_get_items(FILE *file, TodoList *list)
 {
     char line[MAX_LINE_LEN];
@@ -136,13 +108,13 @@ void todoitem_get_items(FILE *file, TodoList *list)
         }
 
         char *pos;
-        char *datestr;
+        time_t epoch_time;
         char *priority;
         char *item;
 
-        datestr = line;
         pos = strchr(line, ' ');
         *pos++ = 0;
+        epoch_time = (time_t) atol(line);
 
         priority = pos;
         pos = strchr(pos, ' ');
@@ -154,7 +126,7 @@ void todoitem_get_items(FILE *file, TodoList *list)
 
         TodoItem *ti = (TodoItem *) malloc(sizeof(TodoItem));
         memset(ti, 0, sizeof(TodoItem));
-        todoitem_set_datetime(ti, datestr);
+        ti->datetime = epoch_time;
         ti->priority = (int) (priority[0] - 'A');
         strncpy(ti->item, item, MAX_ITEM_LEN - 1);
 
@@ -165,19 +137,24 @@ void todoitem_get_items(FILE *file, TodoList *list)
 void todoitem_write_items(TodoList *list, FILE *out)
 {
     int itemNum = 1;
-    char datetimeLine[MAX_LINE_LEN] = {};
     TodoItem *item = list->root.next;
 
     while (item != NULL)
     {
-        strftime(datetimeLine, MAX_LINE_LEN, "%Y%m%d%H%M", &item->datetime);
         if (out == stdout)
         {
             char countStr[5];
+            char dateStr[19];
+
+            struct tm *itemTm = localtime(&item->datetime);
+            strftime(dateStr, 19, "%b %d, %Y %H:%M", itemTm);
+
             sprintf(countStr, "%d", list->count);
             fprintf(out, " %*d ", (int) strlen(countStr), itemNum++);
+            fprintf(out, "%s %c %s\n", dateStr, item->priority + 'A', item->item);
+        } else {
+            fprintf(out, "%ld %c %s\n", (long) item->datetime, item->priority + 'A', item->item);
         }
-        fprintf(out, "%s %c %s\n", datetimeLine, item->priority + 'A', item->item);
         item = item->next;
     }
 }

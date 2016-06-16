@@ -134,6 +134,25 @@ void todoitem_get_items(FILE *file, TodoList *list)
     }
 }
 
+char * getColor(int priority)
+{
+    int p = priority + 'A';
+    switch (p)
+    {
+        case 'A': { return COLOR_RED; } break;
+        case 'B': { return COLOR_BLUE; } break;
+        case 'C': { return COLOR_YELLOW; } break;
+        case 'D': { return COLOR_MAGENTA; } break;
+        case 'E': { return COLOR_GREEN; } break;
+
+        case 'F': 
+        default:
+        {
+            return "";
+        } break;
+    }
+}
+
 void todoitem_write_items(TodoList *list, FILE *out)
 {
     int itemNum = 1;
@@ -151,7 +170,7 @@ void todoitem_write_items(TodoList *list, FILE *out)
 
             sprintf(countStr, "%d", list->count);
             fprintf(out, " %*d ", (int) strlen(countStr), itemNum++);
-            fprintf(out, "%s %c %s\n", dateStr, item->priority + 'A', item->item);
+            fprintf(out, "%s %s%c%s %s\n", dateStr, getColor(item->priority), item->priority + 'A', COLOR_RESET, item->item);
         } else {
             fprintf(out, "%ld %c %s\n", (long) item->datetime, item->priority + 'A', item->item);
         }

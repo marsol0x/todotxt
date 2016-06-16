@@ -4,6 +4,39 @@
 #define COMMAND(name) void name(TodoList *todoItems, TodoList *doneItems, FILE *todoFile, int argc, char **argv)
 typedef COMMAND(Command);
 
+typedef struct
+{
+    char *name;
+    char *shortcuts;
+    char *args;
+    char *help;
+} HelpCommand;
+COMMAND(cmd_help)
+{
+    HelpCommand helpCommands[] = {
+        {"add",        "a",     "string", "Add a todo item of <string>"},
+        {"delete",     "del",   "id",     "Deletes <id> todo item"},
+        {"depriority", "depri", "id",     "Depriorities <id> by one step"},
+        {"done",       "d",     "id",     "Marks <id> todo item as complete"},
+        {"list",       "ls",    0,        "Lists all uncomplete items and ids"},
+        {"num",        0,       0,        "Returns the number of uncomplete items"},
+        {"priority",   "pri",   "id",     "Prioritizes <id> by one step"},
+    };
+
+    char *format = "  %-12s %-6s %-10s %s\n";
+    printf("List of Commands:\n");
+    printf(format, "Name", "Args", "Shortcuts", "Help");
+    printf(format, "----", "----", "---------", "----");
+    for (int i = 0; i < ARRAY_LEN(helpCommands); ++i)
+    {
+        HelpCommand *cmd = helpCommands + i;
+        printf(format, cmd->name,
+                       cmd->args ? cmd->args : "",
+                       cmd->shortcuts ? cmd->shortcuts : "",
+                       cmd->help);
+    }
+}
+
 COMMAND(cmd_add)
 {
     if (argc > 1)

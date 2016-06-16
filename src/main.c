@@ -7,8 +7,19 @@
 
 #define MAX_LINE_LEN 1056
 #define MAX_ITEM_LEN 1024
+#define HASHTABLE_MAX_SIZE 14
+#define ARRAY_LEN(x) (sizeof((x)) / sizeof((x)[1]))
 
-#define HASHTABLE_MAX_SIZE 13
+#define COLOR_START "\x1B["
+#define COLOR_RESET "\x1B[0m"
+#define COLOR_BLACK   COLOR_START "30m"
+#define COLOR_RED     COLOR_START "31m"
+#define COLOR_GREEN   COLOR_START "32m"
+#define COLOR_YELLOW  COLOR_START "33m"
+#define COLOR_BLUE    COLOR_START "34m"
+#define COLOR_MAGENTA COLOR_START "35m"
+#define COLOR_CYAN    COLOR_START "36m"
+#define COLOR_WHITE   COLOR_START "37m"
 
 void error_and_exit(char *msg)
 {
@@ -56,19 +67,22 @@ int main(int argc, char **argv)
     todoitem_get_items(todoFile, &todoItems);
     todoitem_get_items(todoFile, &doneItems);
 
-    hashtable_add(hashTable, HASHTABLE_MAX_SIZE, "add", cmd_add);
-    hashtable_add(hashTable, HASHTABLE_MAX_SIZE, "a", cmd_add);
-    hashtable_add(hashTable, HASHTABLE_MAX_SIZE, "delete", cmd_delete);
-    hashtable_add(hashTable, HASHTABLE_MAX_SIZE, "del", cmd_delete);
-    hashtable_add(hashTable, HASHTABLE_MAX_SIZE, "list", cmd_list);
-    hashtable_add(hashTable, HASHTABLE_MAX_SIZE, "ls", cmd_list);
-    hashtable_add(hashTable, HASHTABLE_MAX_SIZE, "done", cmd_done);
-    hashtable_add(hashTable, HASHTABLE_MAX_SIZE, "d", cmd_done);
-    hashtable_add(hashTable, HASHTABLE_MAX_SIZE, "priority", cmd_priority);
-    hashtable_add(hashTable, HASHTABLE_MAX_SIZE, "pri", cmd_priority);
-    hashtable_add(hashTable, HASHTABLE_MAX_SIZE, "depriority", cmd_depriority);
-    hashtable_add(hashTable, HASHTABLE_MAX_SIZE, "depri", cmd_depriority);
-    hashtable_add(hashTable, HASHTABLE_MAX_SIZE, "num", cmd_num);
+#define HASHTABLE_ADD(name, cmd) hashtable_add(hashTable, HASHTABLE_MAX_SIZE, (name), (cmd))
+    HASHTABLE_ADD("help", cmd_help);
+    HASHTABLE_ADD("add", cmd_add);
+    HASHTABLE_ADD("a", cmd_add);
+    HASHTABLE_ADD("delete", cmd_delete);
+    HASHTABLE_ADD("del", cmd_delete);
+    HASHTABLE_ADD("list", cmd_list);
+    HASHTABLE_ADD("ls", cmd_list);
+    HASHTABLE_ADD("done", cmd_done);
+    HASHTABLE_ADD("d", cmd_done);
+    HASHTABLE_ADD("priority", cmd_priority);
+    HASHTABLE_ADD("pri", cmd_priority);
+    HASHTABLE_ADD("depriority", cmd_depriority);
+    HASHTABLE_ADD("depri", cmd_depriority);
+    HASHTABLE_ADD("num", cmd_num);
+#undef HASHTABLE_ADD
 
     HashItem *item;
     char cmd[20] = {};

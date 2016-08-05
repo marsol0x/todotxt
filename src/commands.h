@@ -21,6 +21,7 @@ COMMAND(cmd_help)
         {"list",       "ls",    0,        "Lists all uncomplete items and ids"},
         {"num",        0,       0,        "Returns the number of uncomplete items"},
         {"priority",   "pri",   "id",     "Prioritizes <id> by one step"},
+        {"search",     "s",     "string", "Search for items containing the word <string>"},
     };
 
     char *format = "  %-12s %-6s %-10s %s\n";
@@ -135,6 +136,35 @@ COMMAND(cmd_depriority)
 COMMAND(cmd_num)
 {
     printf("%d\n", todoItems->count);
+}
+
+COMMAND(cmd_search)
+{
+    if (argc < 1)
+    {
+        error_and_exit("Too few parameters. What are you searching for?");
+    } else if (argc > 1) {
+        error_and_exit("Too many parameters.");
+    }
+
+    char dateStr[19] = {0};
+    char countStr[5] = {0};
+    sprintf(countStr, "%d", todoItems->count);
+
+    int count = 0;
+    TodoItem *item = todoItems->root.next;
+    while (item)
+    {
+        count++;
+        if (strstr(item->item, argv[0]))
+        {
+            struct tm *itemTm = localtime(&item->datetime);
+            strftime(dateStr, 19, "%b %d, %Y %H:%M", itemTm);
+            printf(" %*d ", (int) strlen(countStr), count);
+            printf("%s %s%c%s %s\n", dateStr, getColor(item->priority), item->priority + 'A', COLOR_RESET, item->item);
+        }
+        item = item->next;
+    }
 }
 
 #endif

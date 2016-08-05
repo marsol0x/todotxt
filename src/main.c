@@ -7,7 +7,7 @@
 
 #define MAX_LINE_LEN 1056
 #define MAX_ITEM_LEN 1024
-#define HASHTABLE_MAX_SIZE 14
+#define HASHTABLE_MAX_SIZE 16
 #define ARRAY_LEN(x) (sizeof((x)) / sizeof((x)[1]))
 
 #define COLOR_START "\x1B["
@@ -82,6 +82,8 @@ int main(int argc, char **argv)
     HASHTABLE_ADD("depriority", cmd_depriority);
     HASHTABLE_ADD("depri", cmd_depriority);
     HASHTABLE_ADD("num", cmd_num);
+    HASHTABLE_ADD("search", cmd_search);
+    HASHTABLE_ADD("s", cmd_search);
 #undef HASHTABLE_ADD
 
     HashItem *item;

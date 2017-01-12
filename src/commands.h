@@ -14,7 +14,7 @@ typedef struct
 COMMAND(cmd_help)
 {
     HelpCommand helpCommands[] = {
-        {"add",        "a",     "string", "Add a todo item of <string>"},
+        {"add",        "a",     "[char] string", "Add a todo item of <string> with optional <char> priority"},
         {"delete",     "del",   "id",     "Deletes <id> todo item"},
         {"depriority", "depri", "id",     "Depriorities <id> by one step"},
         {"done",       "d",     "id",     "Marks <id> todo item as complete"},
@@ -24,7 +24,7 @@ COMMAND(cmd_help)
         {"search",     "s",     "string", "Search for items containing the word <string>"},
     };
 
-    char *format = "  %-12s %-6s %-10s %s\n";
+    char *format = "  %-12s %-13s %-10s %s\n";
     printf("List of Commands:\n");
     printf(format, "Name", "Args", "Shortcuts", "Help");
     printf(format, "----", "----", "---------", "----");
@@ -40,21 +40,39 @@ COMMAND(cmd_help)
 
 COMMAND(cmd_add)
 {
-    if (argc > 1)
+    char *inputPriority, *itemStr;
+    char priority;
+    if (argc > 2)
     {
         error_and_exit("Too many parameters. Please use quotes to add new todo items.");
     } else if (argc == 0) {
         error_and_exit("Too few parameters.");
     }
 
+    if (argc == 1)
+    {
+        inputPriority = 0;
+        itemStr = argv[0];
+    } else if (argc == 2) {
+        inputPriority = argv[0];
+        itemStr = argv[1];
+    }
+
+    if (inputPriority)
+    {
+        priority = getPriorityNumber(inputPriority[0]);
+    } else {
+        priority = getPriorityNumber('F');
+    }
+
     TodoItem ti;
     ti.next = ti.prev = 0;
-    ti.priority = 5;
+    ti.priority = priority;
     ti.datetime = time(0);
-    strncpy(ti.item, argv[0], MAX_ITEM_LEN);
+    strncpy(ti.item, itemStr, MAX_ITEM_LEN);
 
     todoitem_add(todoItems, &ti);
-    printf("Added: %s\n", ti.item);
+    printf("Added: \"%s\" with priority %s%c%s\n", ti.item, getColor(priority), getPriorityLetter(priority), COLOR_RESET);
     todoitem_write_all(todoItems, doneItems, todoFile);
 }
 

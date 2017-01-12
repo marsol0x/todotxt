@@ -19,6 +19,44 @@ typedef struct
     int count;
 } TodoList;
 
+char validatePriorityLetter(char priorityLetter)
+{
+    char result = toupper(priorityLetter);
+    if (result > 'F')
+    {
+        result = 'F';
+    } else if (result < 'A') {
+        result = 'A';
+    }
+
+    return result;
+}
+
+int getPriorityNumber(char priorityLetter)
+{
+    int result;
+    char priority = validatePriorityLetter(priorityLetter);
+
+    result = priority - 'A';
+
+    return result;
+}
+
+char getPriorityLetter(int priority)
+{
+    switch (priority)
+    {
+        case 0: return 'A';
+        case 1: return 'B';
+        case 2: return 'C';
+        case 3: return 'D';
+        case 4: return 'E';
+        case 5:
+        default:
+         return 'F';
+    }
+}
+
 void todoitem_add(TodoList *list, TodoItem *ti)
 {
     TodoItem *t = &list->root;
@@ -170,9 +208,9 @@ void todoitem_write_items(TodoList *list, FILE *out)
 
             sprintf(countStr, "%d", list->count);
             fprintf(out, " %*d ", (int) strlen(countStr), itemNum++);
-            fprintf(out, "%s %s%c%s %s\n", dateStr, getColor(item->priority), item->priority + 'A', COLOR_RESET, item->item);
+            fprintf(out, "%s %s%c%s %s\n", dateStr, getColor(item->priority), getPriorityLetter(item->priority), COLOR_RESET, item->item);
         } else {
-            fprintf(out, "%ld %c %s\n", (long) item->datetime, item->priority + 'A', item->item);
+            fprintf(out, "%ld %c %s\n", (long) item->datetime, getPriorityLetter(item->priority), item->item);
         }
         item = item->next;
     }

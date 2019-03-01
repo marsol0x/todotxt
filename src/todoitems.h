@@ -1,6 +1,7 @@
 #ifndef TODOITEMS_H
 #define TODOITEMS_H
 
+#include <ctype.h>
 #include <time.h>
 
 typedef struct todoitem

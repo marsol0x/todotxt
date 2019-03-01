@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,7 +8,6 @@
 
 #define MAX_LINE_LEN 1056
 #define MAX_ITEM_LEN 1024
-#define HASHTABLE_MAX_SIZE 16
 #define ARRAY_LEN(x) (sizeof((x)) / sizeof((x)[1]))
 
 #define COLOR_START "\x1B["
@@ -62,8 +62,6 @@ int main(int argc, char **argv)
         }
     }
 
-    memset(&todoItems, 0, sizeof(TodoList));
-    memset(&doneItems, 0, sizeof(TodoList));
     todoitem_get_items(todoFile, &todoItems);
     todoitem_get_items(todoFile, &doneItems);
 
@@ -86,20 +84,19 @@ int main(int argc, char **argv)
     HASHTABLE_ADD("s", cmd_search);
 #undef HASHTABLE_ADD
 
-    HashItem *item;
-    char cmd[20] = {};
+    HashItem *item = 0;
+    char *cmd = 0;
     if (argc == 1)
     {
-        strncat(cmd, "list", 19);
-        item = hashtable_get(hashTable, HASHTABLE_MAX_SIZE, "list");
+        cmd = "list";
     } else {
-        strncat(cmd, argv[1], 19);
-        item = hashtable_get(hashTable, HASHTABLE_MAX_SIZE, cmd);
+        cmd = argv[1];
     }
+    item = hashtable_get(hashTable, HASHTABLE_MAX_SIZE, cmd);
 
     if (!item)
     {
-        char msg[MAX_ITEM_LEN];
+        char msg[MAX_ITEM_LEN] = {0};
         strncat(msg, "No such command: ", MAX_ITEM_LEN);
         strncat(msg, cmd, MAX_ITEM_LEN);
         error_and_exit(msg);
